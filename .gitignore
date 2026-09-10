@@ -1,5 +1,6 @@
-# Backend (Maven / Java)
-backend/target/
+# Backend (Gradle / Kotlin)
+backend/build/
+backend/.gradle/
 *.class
 *.log
 

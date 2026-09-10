@@ -6,8 +6,7 @@ import type { Role } from '../api/types';
 interface AuthUser {
   displayName: string;
   role: Role;
-  reservistId: number | null;
-  unitId: number | null;
+  reservistId: string | null;
 }
 
 interface AuthContextValue {
@@ -44,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           displayName: response.displayName,
           role: response.role,
           reservistId: response.reservistId,
-          unitId: response.unitId,
         };
         setToken(response.token);
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authUser));

@@ -1,59 +1,54 @@
-import type { EntryStatus, JudgmentOutcome, JudgmentType, ReservistStatus } from '../api/types';
+import type { AttendanceStatus, TargetStatus } from '../api/types';
 
-const RESERVIST_STATUS_LABEL: Record<ReservistStatus, string> = {
-  BEFORE_CALLUP: '소집전',
-  ENTERED: '입영',
-  LATE: '지연',
-  EARLY_DISCHARGE: '조기퇴소',
+const TARGET_STATUS_LABEL: Record<TargetStatus, string> = {
+  EXPECTED: '소집전',
+  ARRIVED: '입영완료',
+  DELAYED: '지연',
+  ABSENT: '미입영',
+  EXCEPTION: '예외',
   COMPLETED: '완료',
 };
 
-const RESERVIST_STATUS_CLASS: Record<ReservistStatus, string> = {
-  BEFORE_CALLUP: 'badge-neutral',
-  ENTERED: 'badge-success',
-  LATE: 'badge-warning',
-  EARLY_DISCHARGE: 'badge-warning',
+const TARGET_STATUS_CLASS: Record<TargetStatus, string> = {
+  EXPECTED: 'badge-neutral',
+  ARRIVED: 'badge-success',
+  DELAYED: 'badge-warning',
+  ABSENT: 'badge-danger',
+  EXCEPTION: 'badge-danger',
   COMPLETED: 'badge-success',
 };
 
-const ENTRY_STATUS_LABEL: Record<EntryStatus, string> = {
-  WAITING: '대기',
-  COMPLETED: '완료',
-  LATE: '지연',
-  NO_SHOW: '미입영',
+const ATTENDANCE_STATUS_LABEL: Record<AttendanceStatus, string> = {
+  PENDING: '대기',
+  NORMAL: '정상',
+  DELAY: '지연',
+  EXCEPTION: '예외',
 };
 
-const JUDGMENT_TYPE_LABEL: Record<JudgmentType, string> = {
-  LATE_ENTRY: '지연입소',
-  EARLY_DISCHARGE: '조기퇴소',
+const RESULT_CODE_LABEL: Record<string, string> = {
+  NORMAL: '정상',
+  DELAY: '지연',
+  EXCEPTION: '예외',
+  EARLY_DEPARTURE_ELIGIBLE: '조기퇴소 허용',
+  EARLY_DEPARTURE_NOT_ELIGIBLE: '조기퇴소 비대상',
 };
 
-const JUDGMENT_OUTCOME_LABEL: Record<JudgmentOutcome, string> = {
-  ALLOWED: '허용',
-  DENIED: '불허',
-};
-
-export function ReservistStatusBadge({ status }: { status: ReservistStatus }) {
-  return <span className={`badge ${RESERVIST_STATUS_CLASS[status]}`}>{RESERVIST_STATUS_LABEL[status]}</span>;
+export function TargetStatusBadge({ status }: { status: TargetStatus }) {
+  return <span className={`badge ${TARGET_STATUS_CLASS[status]}`}>{TARGET_STATUS_LABEL[status]}</span>;
 }
 
-export function EntryStatusBadge({ status }: { status: EntryStatus | null }) {
+export function AttendanceStatusBadge({ status }: { status: AttendanceStatus | null }) {
   if (!status) return <span className="badge badge-neutral">-</span>;
-  const cls = status === 'LATE' ? 'badge-warning' : status === 'NO_SHOW' ? 'badge-danger' : 'badge-success';
-  return <span className={`badge ${cls}`}>{ENTRY_STATUS_LABEL[status]}</span>;
+  const cls = status === 'DELAY' ? 'badge-warning' : status === 'EXCEPTION' ? 'badge-danger' : status === 'NORMAL' ? 'badge-success' : 'badge-neutral';
+  return <span className={`badge ${cls}`}>{ATTENDANCE_STATUS_LABEL[status]}</span>;
 }
 
-export function JudgmentTypeLabel({ type }: { type: JudgmentType }) {
-  return <>{JUDGMENT_TYPE_LABEL[type]}</>;
+export function ResultCodeBadge({ code }: { code: string }) {
+  const cls = code === 'DELAY' || code === 'EXCEPTION' || code === 'EARLY_DEPARTURE_NOT_ELIGIBLE'
+    ? code === 'EARLY_DEPARTURE_NOT_ELIGIBLE' ? 'badge-neutral' : code === 'EXCEPTION' ? 'badge-danger' : 'badge-warning'
+    : 'badge-success';
+  return <span className={`badge ${cls}`}>{RESULT_CODE_LABEL[code] ?? code}</span>;
 }
 
-export function JudgmentOutcomeBadge({ outcome }: { outcome: JudgmentOutcome }) {
-  return (
-    <span className={`badge ${outcome === 'ALLOWED' ? 'badge-success' : 'badge-danger'}`}>
-      {JUDGMENT_OUTCOME_LABEL[outcome]}
-    </span>
-  );
-}
-
-export const judgmentOutcomeLabel = (outcome: JudgmentOutcome) => JUDGMENT_OUTCOME_LABEL[outcome];
-export const judgmentTypeLabel = (type: JudgmentType) => JUDGMENT_TYPE_LABEL[type];
+export const targetStatusLabel = (status: TargetStatus) => TARGET_STATUS_LABEL[status];
+export const resultCodeLabel = (code: string) => RESULT_CODE_LABEL[code] ?? code;

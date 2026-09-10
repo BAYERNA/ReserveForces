@@ -4,20 +4,22 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
-import { AdminJudgmentsPage } from './pages/admin/AdminJudgmentsPage';
-import { AdminProcessLogPage } from './pages/admin/AdminProcessLogPage';
+import { AdminEvaluationsPage } from './pages/admin/AdminEvaluationsPage';
+import { AdminAuditLogPage } from './pages/admin/AdminAuditLogPage';
+import { AdminScenarioPage } from './pages/admin/AdminScenarioPage';
 import { ReservistNoticePage } from './pages/reservist/ReservistNoticePage';
 import { ReservistJudgmentPage } from './pages/reservist/ReservistJudgmentPage';
 
 const ADMIN_NAV = [
   { to: '/admin', label: '대시보드', end: true },
-  { to: '/admin/judgments', label: '판정 처리' },
-  { to: '/admin/process-logs', label: '처리 이력' },
+  { to: '/admin/evaluations', label: '판정 이력' },
+  { to: '/admin/audit-logs', label: '처리 이력' },
+  { to: '/admin/scenarios', label: '시연 제어' },
 ];
 
 const RESERVIST_NAV = [
   { to: '/me', label: '소집통지', end: true },
-  { to: '/me/judgments', label: '판정 결과' },
+  { to: '/me/status', label: '판정 결과' },
 ];
 
 function HomeRedirect() {
@@ -43,21 +45,31 @@ export default function App() {
         }
       />
       <Route
-        path="/admin/judgments"
+        path="/admin/evaluations"
         element={
           <ProtectedRoute role="ADMIN">
             <Layout title="예비군 동원소집 통합 관제 시스템" subtitle="관리자 · 부대 동원 담당자" navItems={ADMIN_NAV}>
-              <AdminJudgmentsPage />
+              <AdminEvaluationsPage />
             </Layout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/admin/process-logs"
+        path="/admin/audit-logs"
         element={
           <ProtectedRoute role="ADMIN">
             <Layout title="예비군 동원소집 통합 관제 시스템" subtitle="관리자 · 부대 동원 담당자" navItems={ADMIN_NAV}>
-              <AdminProcessLogPage />
+              <AdminAuditLogPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/scenarios"
+        element={
+          <ProtectedRoute role="ADMIN">
+            <Layout title="예비군 동원소집 통합 관제 시스템" subtitle="관리자 · 부대 동원 담당자" navItems={ADMIN_NAV}>
+              <AdminScenarioPage />
             </Layout>
           </ProtectedRoute>
         }
@@ -74,7 +86,7 @@ export default function App() {
         }
       />
       <Route
-        path="/me/judgments"
+        path="/me/status"
         element={
           <ProtectedRoute role="RESERVIST">
             <Layout title="예비군 동원소집 통합 관제 시스템" subtitle="예비군 개인 화면" navItems={RESERVIST_NAV}>
