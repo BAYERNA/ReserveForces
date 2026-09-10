@@ -20,10 +20,10 @@
 | 요구사항 | 구현 위치 |
 |---|---|
 | FR-AUTH-001~003 로그인/권한/로그아웃 | `AuthController`, `SecurityConfig`, JWT (ADMIN/RESERVIST/DEMO) |
-| FR-MOB-001~003 소집 회차/대상자/입영 상태 | `AdminMasterDataController`, `AdminTargetController`, `AttendanceService` |
-| FR-MOB-004/005 예비군 본인 조회 | `MeController`, `MeService` |
+| FR-MOB-001~003 소집 회차 등록/대상자/입영 상태 | `AdminMasterDataController`(회차 등록 포함), `AdminTargetController`, `AttendanceService` |
+| FR-MOB-004/005 예비군 본인 조회·소집통지 확인 | `MeController`(소집통지 확인 포함), `MeService` |
 | FR-DASH-001~004 통합 대시보드/검색/상세 | `AdminDashboardController`, `DashboardService`, `TargetService` |
-| FR-RULE-001~006 규정 기반 자동판정 | `RuleEngine`(JSONB 조건 해석), `RuleEvaluationService`, `rules`/`rule_evaluations` 테이블 |
+| FR-RULE-001~006 규정 기반 자동판정 및 임계값 관리 | `RuleEngine`(JSONB 조건 해석), `RuleEvaluationService`, `RuleAdminService`(코드 재배포 없는 임계값·버전 관리), `rules`/`rule_evaluations` 테이블 |
 | FR-SCN-001~003 시나리오 선택/재생/초기화 | `DemoController`, `ScenarioService` |
 | FR-AUD-001/002 상태변경·판정 이력 | `AuditLogService`, `AdminAuditLogController`, `AdminEvaluationController` |
 
@@ -45,8 +45,8 @@ backend/   Kotlin + Spring Boot 3.5, Gradle, PostgreSQL 16(UUID/JSONB), JWT 인�
 frontend/  React 18 + Vite + TypeScript, react-router-dom 기반 라우팅, 반응형 웹
   src/api/          fetch 클라이언트 + 백엔드 DTO 타입
   src/context/       인증 컨텍스트 (JWT 저장/역할 분기)
-  src/pages/admin/   관리자 화면 (대시보드, 판정 이력, 처리 이력, 시연 제어)
-  src/pages/reservist/  예비군 개인 화면 (소집통지, 판정 결과)
+  src/pages/admin/   관리자 화면 (대시보드, 판정 이력, 처리 이력, 시연 제어, 규정 관리)
+  src/pages/reservist/  예비군 개인 화면 (소집통지 확인, 판정 결과)
 ```
 
 DB 스키마는 `backend/src/main/resources/db/migration/V1__init_schema.sql`에 Flyway 마이그레이션으로
@@ -121,11 +121,14 @@ npm run dev
 
 ```bash
 cd backend
-./gradlew test        # RuleEngine 단위 테스트 등
+./gradlew test        # RuleEngine, AttendanceService, ScenarioService, RuleAdminService 단위 테스트
 
 cd frontend
 npm run build          # tsc 타입체크 + 프로덕션 빌드
 ```
+
+관리자 화면의 **규정 관리** 메뉴에서 지연입소·조기퇴소 임계값을 직접 수정할 수 있습니다. 값을 바꾸면
+서비스 코드 재배포 없이 즉시 새 기준으로 판정되며, 규칙 버전이 자동으로 한 단계 올라갑니다(FR-RULE-006).
 
 ## 폴더 구조
 

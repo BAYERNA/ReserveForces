@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchMyMobilization } from '../../api/endpoints';
+import { confirmMobilization, fetchMyMobilization } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { MyMobilizationResponse } from '../../api/types';
 
@@ -7,6 +7,7 @@ import type { MyMobilizationResponse } from '../../api/types';
 export function ReservistNoticePage() {
   const [mobilization, setMobilization] = useState<MyMobilizationResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,6 +16,18 @@ export function ReservistNoticePage() {
       .catch((err) => setError(err instanceof ApiError ? err.message : '정보를 불러오지 못했습니다.'))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleConfirm = async () => {
+    setConfirming(true);
+    setError(null);
+    try {
+      setMobilization(await confirmMobilization());
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '확인 처리 중 오류가 발생했습니다.');
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   return (
     <div>
@@ -44,6 +57,17 @@ export function ReservistNoticePage() {
               <div className="info-label">소집 예정 일시</div>
               <div className="info-value">{mobilization.scheduledStartAt.replace('T', ' ').slice(0, 16)}</div>
             </div>
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            {mobilization.noticeConfirmedAt ? (
+              <span className="badge badge-success">
+                {mobilization.noticeConfirmedAt.replace('T', ' ').slice(0, 16)}에 확인 완료
+              </span>
+            ) : (
+              <button className="btn" onClick={handleConfirm} disabled={confirming}>
+                {confirming ? '처리 중...' : '소집통지 확인'}
+              </button>
+            )}
           </div>
         </div>
       ) : (

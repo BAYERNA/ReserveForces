@@ -4,6 +4,7 @@ import com.bayerna.reserveforces.domain.attendance.Attendance
 import com.bayerna.reserveforces.domain.attendance.AttendanceStatus
 import com.bayerna.reserveforces.domain.target.MobilizationTarget
 import com.bayerna.reserveforces.domain.target.TargetStatus
+import jakarta.validation.constraints.NotBlank
 import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -49,4 +50,6 @@ data class RecordAttendanceRequest(
     val distanceKm: BigDecimal?,
 )
 
-data class MarkExceptionRequest(val reason: String)
+data class MarkExceptionRequest(
+    @field:NotBlank(message = "예외 처리 사유를 입력해 주세요.") val reason: String,
+)

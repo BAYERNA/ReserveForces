@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { fetchDashboard, fetchMobilizations, fetchTargets, recordAttendance, markAbsent } from '../../api/endpoints';
+import { fetchDashboard, fetchMobilizations, fetchTargets, recordAttendance, markAbsent, completeTarget } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { DashboardResponse, MobilizationResponse, TargetResponse, TargetStatus } from '../../api/types';
 import { AttendanceStatusBadge, TargetStatusBadge } from '../../components/badges';
@@ -57,6 +57,15 @@ export function AdminDashboardPage() {
   const handleMarkAbsent = async (target: TargetResponse) => {
     try {
       await markAbsent(target.targetId);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleComplete = async (target: TargetResponse) => {
+    try {
+      await completeTarget(target.targetId);
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '처리 중 오류가 발생했습니다.');
@@ -158,6 +167,11 @@ export function AdminDashboardPage() {
                         <button className="btn btn-sm btn-outline" onClick={() => handleMarkAbsent(t)}>
                           미입영
                         </button>
+                        {(t.targetStatus === 'ARRIVED' || t.targetStatus === 'DELAYED') && (
+                          <button className="btn btn-sm btn-outline" onClick={() => handleComplete(t)}>
+                            완료 처리
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

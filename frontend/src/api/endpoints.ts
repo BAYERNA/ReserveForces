@@ -7,6 +7,7 @@ import type {
   MyMobilizationResponse,
   MyStatusResponse,
   RuleEvaluationResponse,
+  RuleResponse,
   ScenarioResponse,
   ScenarioRunResponse,
   TargetResponse,
@@ -94,4 +95,16 @@ export function fetchMyMobilization() {
 
 export function fetchMyStatus() {
   return api.get<MyStatusResponse>('/me/status');
+}
+
+export function confirmMobilization() {
+  return api.post<MyMobilizationResponse>('/me/mobilization/confirm');
+}
+
+export function fetchRules() {
+  return api.get<RuleResponse[]>('/admin/rules');
+}
+
+export function updateRule(ruleId: string, value?: number, enabled?: boolean) {
+  return api.patch<RuleResponse>(`/admin/rules/${ruleId}`, { value, enabled });
 }

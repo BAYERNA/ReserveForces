@@ -7,6 +7,7 @@ import com.bayerna.reserveforces.common.ApiException
 import com.bayerna.reserveforces.config.AuthenticatedUser
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
@@ -22,6 +23,13 @@ class MeController(private val meService: MeService) {
     @GetMapping("/mobilization")
     fun myMobilization(@AuthenticationPrincipal principal: AuthenticatedUser): MyMobilizationResponse {
         val target = meService.getLatestTarget(requireReservistId(principal))
+        return MyMobilizationResponse.from(target)
+    }
+
+    /** 소집통지 확인 시각을 기록한다 (mobilization_targets.notice_confirmed_at). */
+    @PostMapping("/mobilization/confirm")
+    fun confirmMobilization(@AuthenticationPrincipal principal: AuthenticatedUser): MyMobilizationResponse {
+        val target = meService.confirmNotice(requireReservistId(principal))
         return MyMobilizationResponse.from(target)
     }
 

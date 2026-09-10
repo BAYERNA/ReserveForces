@@ -9,6 +9,7 @@ import com.bayerna.reserveforces.repository.MobilizationTargetRepository
 import com.bayerna.reserveforces.repository.RuleEvaluationRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -31,4 +32,15 @@ class MeService(
 
     fun getEvaluations(targetId: UUID): List<RuleEvaluation> =
         ruleEvaluationRepository.findByTarget_IdOrderByEvaluatedAtDesc(targetId)
+
+    /** 예비군이 본인의 소집통지를 확인했음을 기록한다 (mobilization_targets.notice_confirmed_at). */
+    @Transactional
+    fun confirmNotice(reservistId: UUID): MobilizationTarget {
+        val target = getLatestTarget(reservistId)
+        if (target.noticeConfirmedAt == null) {
+            target.noticeConfirmedAt = OffsetDateTime.now()
+            mobilizationTargetRepository.save(target)
+        }
+        return target
+    }
 }

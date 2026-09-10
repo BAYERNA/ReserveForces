@@ -9,6 +9,7 @@ import com.bayerna.reserveforces.config.AuthenticatedUser
 import com.bayerna.reserveforces.domain.target.TargetStatus
 import com.bayerna.reserveforces.domain.user.UserAccount
 import com.bayerna.reserveforces.repository.UserAccountRepository
+import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -63,7 +64,7 @@ class AdminTargetController(
     @PostMapping("/targets/{id}/exception")
     fun markException(
         @PathVariable id: UUID,
-        @RequestBody request: MarkExceptionRequest,
+        @Valid @RequestBody request: MarkExceptionRequest,
         @AuthenticationPrincipal principal: AuthenticatedUser,
     ): TargetResponse {
         val target = attendanceService.markException(id, request.reason, resolveActor(principal))

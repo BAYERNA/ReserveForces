@@ -105,3 +105,18 @@ export interface MyStatusResponse {
   arrivedAt: string | null;
   evaluations: RuleEvaluationResponse[];
 }
+
+export type RuleType = 'TIME' | 'DISTANCE' | 'COMPOSITE' | 'OTHER';
+
+export interface RuleResponse {
+  ruleId: string;
+  code: string;
+  name: string;
+  version: string;
+  description: string;
+  ruleType: RuleType;
+  conditions: string;
+  resultCode: string;
+  priority: number;
+  enabled: boolean;
+}

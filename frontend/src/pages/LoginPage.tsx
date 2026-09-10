@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +17,11 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       const user = await login(loginId, password);
+      if (user.role === 'DEMO') {
+        logout();
+        setError('이 계정은 오프라인 시연용 API 전용 계정입니다. 관리자(admin) 또는 예비군 계정으로 로그인해 주세요.');
+        return;
+      }
       navigate(user.role === 'ADMIN' ? '/admin' : '/me', { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '로그인에 실패했습니다.');
