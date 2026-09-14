@@ -532,6 +532,22 @@ tbody tr:hover {
   background: var(--color-neutral-bg);
 }
 
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn-link:hover {
+  color: var(--color-primary-dark);
+}
+
 .login-page {
   min-height: 100vh;
   display: flex;

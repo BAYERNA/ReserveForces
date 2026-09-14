@@ -3,6 +3,8 @@ import {
   fetchDashboard,
   fetchMobilizations,
   fetchTargets,
+  fetchTarget,
+  fetchEvaluationsForTarget,
   recordAttendance,
   markAbsent,
   completeTarget,
@@ -11,8 +13,16 @@ import {
   createMobilization,
 } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
-import type { DashboardResponse, LocationResponse, MobilizationResponse, TargetResponse, TargetStatus, UnitResponse } from '../../api/types';
-import { AttendanceStatusBadge, TargetStatusBadge } from '../../components/badges';
+import type {
+  DashboardResponse,
+  LocationResponse,
+  MobilizationResponse,
+  RuleEvaluationResponse,
+  TargetResponse,
+  TargetStatus,
+  UnitResponse,
+} from '../../api/types';
+import { AttendanceStatusBadge, ResultCodeBadge, TargetStatusBadge } from '../../components/badges';
 import { IconTrendingUp, IconUsers } from '../../components/icons';
 import { Gauge } from '../../components/Gauge';
 import { StatusBarChart } from '../../components/StatusBarChart';
@@ -44,6 +54,7 @@ export function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingTarget, setEditingTarget] = useState<TargetResponse | null>(null);
   const [creatingMobilization, setCreatingMobilization] = useState(false);
+  const [viewingTargetId, setViewingTargetId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -218,7 +229,15 @@ export function AdminDashboardPage() {
               <tbody>
                 {targets.map((t) => (
                   <tr key={t.targetId}>
-                    <td>{t.reservistName}</td>
+                    <td>
+                      <button
+                        className="btn-link"
+                        onClick={() => setViewingTargetId(t.targetId)}
+                        title="상세 조회"
+                      >
+                        {t.reservistName}
+                      </button>
+                    </td>
                     <td>{t.demoIdentifier}</td>
                     <td>{t.unitName}</td>
                     <td>{t.distanceKm != null ? `${t.distanceKm}km` : '-'}</td>
@@ -273,6 +292,116 @@ export function AdminDashboardPage() {
           }}
         />
       )}
+
+      {viewingTargetId && <TargetDetailModal targetId={viewingTargetId} onClose={() => setViewingTargetId(null)} />}
+    </div>
+  );
+}
+
+function TargetDetailModal({ targetId, onClose }: { targetId: string; onClose: () => void }) {
+  const [target, setTarget] = useState<TargetResponse | null>(null);
+  const [evaluations, setEvaluations] = useState<RuleEvaluationResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([fetchTarget(targetId), fetchEvaluationsForTarget(targetId)])
+      .then(([targetData, evaluationData]) => {
+        setTarget(targetData);
+        setEvaluations(evaluationData);
+      })
+      .catch((err) => setError(err instanceof ApiError ? err.message : '상세 정보를 불러오지 못했습니다.'))
+      .finally(() => setLoading(false));
+  }, [targetId]);
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: '560px' }} onClick={(e) => e.stopPropagation()}>
+        <h3>{target ? `${target.reservistName} 상세 조회` : '상세 조회'}</h3>
+        <p className="page-subtitle" style={{ marginBottom: '0.8rem' }}>
+          FR-DASH-004 대상자 한 명의 소집·입영 정보와 판정 이력을 함께 조회합니다.
+        </p>
+
+        {error && <p className="error-text">{error}</p>}
+        {loading ? (
+          <p className="empty-state">불러오는 중...</p>
+        ) : target ? (
+          <>
+            <div className="info-grid" style={{ marginBottom: '1rem' }}>
+              <div className="info-item">
+                <div className="info-label">식별번호</div>
+                <div className="info-value">{target.demoIdentifier}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">소속부대</div>
+                <div className="info-value">{target.unitName}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">소집회차</div>
+                <div className="info-value">{target.mobilizationName}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">입영 장소</div>
+                <div className="info-value">{target.locationName}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">거주지 거리</div>
+                <div className="info-value">{target.distanceKm != null ? `${target.distanceKm}km` : '-'}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">소집 예정 일시</div>
+                <div className="info-value">{target.scheduledAt ? target.scheduledAt.replace('T', ' ').slice(0, 16) : '-'}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">실제 입영 일시</div>
+                <div className="info-value">{target.arrivedAt ? target.arrivedAt.replace('T', ' ').slice(0, 16) : '-'}</div>
+              </div>
+              <div className="info-item">
+                <div className="info-label">상태</div>
+                <div className="info-value">
+                  <TargetStatusBadge status={target.targetStatus} /> <AttendanceStatusBadge status={target.attendanceStatus} />
+                </div>
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '0.95rem', marginBottom: '0.6rem' }}>판정 이력</h3>
+            {evaluations.length === 0 ? (
+              <p className="empty-state">판정 이력이 없습니다.</p>
+            ) : (
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>적용 규칙</th>
+                      <th>버전</th>
+                      <th>결과</th>
+                      <th>판정 일시</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {evaluations.map((ev) => (
+                      <tr key={ev.evaluationId}>
+                        <td>{ev.ruleName}</td>
+                        <td>{ev.ruleVersion}</td>
+                        <td>
+                          <ResultCodeBadge code={ev.resultCode} />
+                        </td>
+                        <td>{ev.evaluatedAt ? ev.evaluatedAt.replace('T', ' ').slice(0, 19) : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        ) : null}
+
+        <div className="modal-actions">
+          <button className="btn" onClick={onClose}>
+            닫기
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
