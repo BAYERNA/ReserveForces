@@ -59,27 +59,16 @@ export function ReservistJudgmentPage() {
             {status.evaluations.length === 0 ? (
               <p className="empty-state">아직 산출된 판정 결과가 없습니다.</p>
             ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>적용 규칙</th>
-                      <th>판정 결과</th>
-                      <th>판정 일시</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {status.evaluations.map((e) => (
-                      <tr key={e.evaluationId}>
-                        <td>{e.ruleName}</td>
-                        <td>
-                          <ResultCodeBadge code={e.resultCode} />
-                        </td>
-                        <td>{e.evaluatedAt ? e.evaluatedAt.replace('T', ' ').slice(0, 19) : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="eval-list">
+                {status.evaluations.map((e) => (
+                  <div className="eval-row" key={e.evaluationId}>
+                    <div className="eval-row-main">
+                      <span className="eval-rule">{e.ruleName}</span>
+                      <ResultCodeBadge code={e.resultCode} />
+                    </div>
+                    <div className="eval-time">{e.evaluatedAt ? e.evaluatedAt.replace('T', ' ').slice(0, 19) : '-'}</div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
