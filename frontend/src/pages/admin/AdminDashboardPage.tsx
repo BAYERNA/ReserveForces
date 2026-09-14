@@ -26,6 +26,8 @@ export function AdminDashboardPage() {
   const [mobilizations, setMobilizations] = useState<MobilizationResponse[]>([]);
   const [mobilizationId, setMobilizationId] = useState('');
   const [status, setStatus] = useState<TargetStatus | ''>('');
+  const [queryInput, setQueryInput] = useState('');
+  const [query, setQuery] = useState('');
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [targets, setTargets] = useState<TargetResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export function AdminDashboardPage() {
     try {
       const [dashboardData, targetData] = await Promise.all([
         fetchDashboard(mobilizationId || undefined),
-        fetchTargets({ mobilizationId: mobilizationId || undefined, status: status || undefined }),
+        fetchTargets({ mobilizationId: mobilizationId || undefined, status: status || undefined, query: query || undefined }),
       ]);
       setDashboard(dashboardData);
       setTargets(targetData);
@@ -47,7 +49,7 @@ export function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [mobilizationId, status]);
+  }, [mobilizationId, status, query]);
 
   useEffect(() => {
     fetchMobilizations().then(setMobilizations).catch(() => setMobilizations([]));
@@ -56,6 +58,11 @@ export function AdminDashboardPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(queryInput.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [queryInput]);
 
   const handleMarkAbsent = async (target: TargetResponse) => {
     try {
@@ -142,6 +149,13 @@ export function AdminDashboardPage() {
       <div className="card">
         <h2>소집대상자 명단</h2>
         <div className="filter-bar">
+          <input
+            type="text"
+            placeholder="이름 또는 식별번호 검색"
+            value={queryInput}
+            onChange={(e) => setQueryInput(e.target.value)}
+            style={{ minWidth: '200px' }}
+          />
           <select value={mobilizationId} onChange={(e) => setMobilizationId(e.target.value)}>
             <option value="">전체 소집회차</option>
             {mobilizations.map((m) => (
