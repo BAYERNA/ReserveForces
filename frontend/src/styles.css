@@ -297,6 +297,111 @@ button {
   font-size: 1.2rem;
 }
 
+.gauge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.gauge-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.55rem;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.gauge-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.gauge-card-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.gauge-card-caption {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.hero-card {
+  background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+  color: var(--color-primary-contrast);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.hero-card .stat-icon {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.hero-card .stat-label {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.hero-card .stat-value {
+  color: #ffffff;
+  font-size: 1.7rem;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 96px;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.bar-row-label {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.bar-track {
+  height: 12px;
+  background: var(--color-neutral-bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.bar-row-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bar-row-pct {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
 .progress-bar {
   height: 8px;
   background: var(--color-neutral-bg);

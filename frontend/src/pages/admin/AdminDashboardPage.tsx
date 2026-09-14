@@ -3,7 +3,9 @@ import { fetchDashboard, fetchMobilizations, fetchTargets, recordAttendance, mar
 import { ApiError } from '../../api/client';
 import type { DashboardResponse, MobilizationResponse, TargetResponse, TargetStatus } from '../../api/types';
 import { AttendanceStatusBadge, TargetStatusBadge } from '../../components/badges';
-import { IconAlertTriangle, IconClock, IconTrendingUp, IconUserX, IconUsers } from '../../components/icons';
+import { IconTrendingUp, IconUsers } from '../../components/icons';
+import { Gauge } from '../../components/Gauge';
+import { StatusBarChart } from '../../components/StatusBarChart';
 
 const STATUS_OPTIONS: { value: TargetStatus | ''; label: string }[] = [
   { value: '', label: '전체 상태' },
@@ -84,9 +86,9 @@ export function AdminDashboardPage() {
       <p className="page-subtitle">FR-DASH-001/002 전체 대상자·입영 현황 및 진행률</p>
 
       {dashboard && (
-        <div className="stat-grid">
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-primary">
+        <>
+          <div className="hero-card" style={{ marginBottom: '1.1rem' }}>
+            <div className="stat-icon">
               <IconUsers />
             </div>
             <div className="stat-body">
@@ -94,46 +96,47 @@ export function AdminDashboardPage() {
               <div className="stat-value">{dashboard.totalTargets}명</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-accent">
-              <IconTrendingUp />
+
+          <div className="gauge-grid">
+            <div className="gauge-card">
+              <Gauge value={dashboard.entryCompletionRate} valueLabel={`${dashboard.entryCompletionRate.toFixed(0)}%`} color="var(--color-accent)" />
+              <div className="gauge-card-label">입영 진행률</div>
+              <div className="gauge-card-caption">{dashboard.arrivedCount}명 입영완료</div>
             </div>
-            <div className="stat-body">
-              <div className="stat-label">입영 진행률</div>
-              <div className="stat-value">{dashboard.entryCompletionRate.toFixed(1)}%</div>
-              <div className="progress-bar">
-                <div className="progress-bar-fill" style={{ width: `${Math.min(dashboard.entryCompletionRate, 100)}%` }} />
-              </div>
+            <div className="gauge-card">
+              <Gauge
+                value={dashboard.totalTargets > 0 ? ((dashboard.statusCounts.DELAYED ?? 0) / dashboard.totalTargets) * 100 : 0}
+                valueLabel={`${dashboard.statusCounts.DELAYED ?? 0}명`}
+                color="var(--color-warning)"
+              />
+              <div className="gauge-card-label">지연</div>
+              <div className="gauge-card-caption">전체 {dashboard.totalTargets}명 중</div>
             </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-warning">
-              <IconClock />
+            <div className="gauge-card">
+              <Gauge
+                value={dashboard.totalTargets > 0 ? ((dashboard.statusCounts.ABSENT ?? 0) / dashboard.totalTargets) * 100 : 0}
+                valueLabel={`${dashboard.statusCounts.ABSENT ?? 0}명`}
+                color="var(--color-text-muted)"
+              />
+              <div className="gauge-card-label">미입영</div>
+              <div className="gauge-card-caption">전체 {dashboard.totalTargets}명 중</div>
             </div>
-            <div className="stat-body">
-              <div className="stat-label">지연</div>
-              <div className="stat-value small">{dashboard.statusCounts.DELAYED ?? 0}명</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-neutral">
-              <IconUserX />
-            </div>
-            <div className="stat-body">
-              <div className="stat-label">미입영</div>
-              <div className="stat-value small">{dashboard.statusCounts.ABSENT ?? 0}명</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-danger">
-              <IconAlertTriangle />
-            </div>
-            <div className="stat-body">
-              <div className="stat-label">예외</div>
-              <div className="stat-value small">{dashboard.statusCounts.EXCEPTION ?? 0}명</div>
+            <div className="gauge-card">
+              <Gauge
+                value={dashboard.totalTargets > 0 ? ((dashboard.statusCounts.EXCEPTION ?? 0) / dashboard.totalTargets) * 100 : 0}
+                valueLabel={`${dashboard.statusCounts.EXCEPTION ?? 0}명`}
+                color="var(--color-danger)"
+              />
+              <div className="gauge-card-label">예외</div>
+              <div className="gauge-card-caption">전체 {dashboard.totalTargets}명 중</div>
             </div>
           </div>
-        </div>
+
+          <div className="card">
+            <h2>상태별 현황</h2>
+            <StatusBarChart statusCounts={dashboard.statusCounts} total={dashboard.totalTargets} />
+          </div>
+        </>
       )}
 
       <div className="card">
