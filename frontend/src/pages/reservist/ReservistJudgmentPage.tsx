@@ -3,6 +3,7 @@ import { fetchMyStatus } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { MyStatusResponse } from '../../api/types';
 import { AttendanceStatusBadge, ResultCodeBadge, TargetStatusBadge } from '../../components/badges';
+import { IconCheckCircle } from '../../components/icons';
 
 /** SCR-06: 본인 입영 처리 상태 및 판정 결과 조회 (FR-MOB-005). */
 export function ReservistJudgmentPage() {
@@ -19,7 +20,12 @@ export function ReservistJudgmentPage() {
 
   return (
     <div>
-      <h1>본인 판정 결과</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconCheckCircle />
+        </div>
+        <h1>본인 판정 결과</h1>
+      </div>
       <p className="page-subtitle">FR-MOB-005 본인 입영 처리 상태 및 지연입소·조기퇴소 판정 결과 확인</p>
 
       {error && <p className="error-text">{error}</p>}

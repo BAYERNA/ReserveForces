@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchScenarios, resetDemo, runScenario } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { ScenarioResponse } from '../../api/types';
+import { IconPlayCircle } from '../../components/icons';
 
 /** SCR-07: 발표용 시나리오 선택·재생·초기화 (FR-SCN-001~003). 외부 네트워크 없이 로컬 DB만으로 동작한다. */
 export function AdminScenarioPage() {
@@ -49,7 +50,12 @@ export function AdminScenarioPage() {
 
   return (
     <div>
-      <h1>시연 제어</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconPlayCircle />
+        </div>
+        <h1>시연 제어</h1>
+      </div>
       <p className="page-subtitle">FR-SCN-001~003 네트워크 연결 없이 발표용 시나리오를 전환·초기화합니다.</p>
 
       {message && (

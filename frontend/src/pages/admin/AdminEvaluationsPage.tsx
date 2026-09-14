@@ -3,6 +3,7 @@ import { fetchAllEvaluations, markException, reevaluate } from '../../api/endpoi
 import { ApiError } from '../../api/client';
 import type { RuleEvaluationResponse } from '../../api/types';
 import { ResultCodeBadge } from '../../components/badges';
+import { IconHistory } from '../../components/icons';
 
 /** SCR-08: 판정 이력 — 적용 규칙·버전·입력값·판정 시각을 근거와 함께 보여준다 (FR-RULE-005/006). */
 export function AdminEvaluationsPage() {
@@ -38,7 +39,12 @@ export function AdminEvaluationsPage() {
 
   return (
     <div>
-      <h1>판정 이력</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconHistory />
+        </div>
+        <h1>판정 이력</h1>
+      </div>
       <p className="page-subtitle">FR-RULE-005/006 판정 근거(입력값·규칙 버전) 조회, 재판정 및 예외 처리</p>
 
       <div className="card">

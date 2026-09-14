@@ -3,6 +3,7 @@ import { fetchDashboard, fetchMobilizations, fetchTargets, recordAttendance, mar
 import { ApiError } from '../../api/client';
 import type { DashboardResponse, MobilizationResponse, TargetResponse, TargetStatus } from '../../api/types';
 import { AttendanceStatusBadge, TargetStatusBadge } from '../../components/badges';
+import { IconAlertTriangle, IconClock, IconTrendingUp, IconUserX, IconUsers } from '../../components/icons';
 
 const STATUS_OPTIONS: { value: TargetStatus | ''; label: string }[] = [
   { value: '', label: '전체 상태' },
@@ -74,33 +75,63 @@ export function AdminDashboardPage() {
 
   return (
     <div>
-      <h1>통합 관제 대시보드</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconTrendingUp />
+        </div>
+        <h1>통합 관제 대시보드</h1>
+      </div>
       <p className="page-subtitle">FR-DASH-001/002 전체 대상자·입영 현황 및 진행률</p>
 
       {dashboard && (
         <div className="stat-grid">
           <div className="stat-card">
-            <div className="stat-label">전체 소집대상</div>
-            <div className="stat-value">{dashboard.totalTargets}명</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">입영 진행률</div>
-            <div className="stat-value">{dashboard.entryCompletionRate.toFixed(1)}%</div>
-            <div className="progress-bar">
-              <div className="progress-bar-fill" style={{ width: `${Math.min(dashboard.entryCompletionRate, 100)}%` }} />
+            <div className="stat-icon stat-icon-primary">
+              <IconUsers />
+            </div>
+            <div className="stat-body">
+              <div className="stat-label">전체 소집대상</div>
+              <div className="stat-value">{dashboard.totalTargets}명</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">지연</div>
-            <div className="stat-value small">{dashboard.statusCounts.DELAYED ?? 0}명</div>
+            <div className="stat-icon stat-icon-accent">
+              <IconTrendingUp />
+            </div>
+            <div className="stat-body">
+              <div className="stat-label">입영 진행률</div>
+              <div className="stat-value">{dashboard.entryCompletionRate.toFixed(1)}%</div>
+              <div className="progress-bar">
+                <div className="progress-bar-fill" style={{ width: `${Math.min(dashboard.entryCompletionRate, 100)}%` }} />
+              </div>
+            </div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">미입영</div>
-            <div className="stat-value small">{dashboard.statusCounts.ABSENT ?? 0}명</div>
+            <div className="stat-icon stat-icon-warning">
+              <IconClock />
+            </div>
+            <div className="stat-body">
+              <div className="stat-label">지연</div>
+              <div className="stat-value small">{dashboard.statusCounts.DELAYED ?? 0}명</div>
+            </div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">예외</div>
-            <div className="stat-value small">{dashboard.statusCounts.EXCEPTION ?? 0}명</div>
+            <div className="stat-icon stat-icon-neutral">
+              <IconUserX />
+            </div>
+            <div className="stat-body">
+              <div className="stat-label">미입영</div>
+              <div className="stat-value small">{dashboard.statusCounts.ABSENT ?? 0}명</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-danger">
+              <IconAlertTriangle />
+            </div>
+            <div className="stat-body">
+              <div className="stat-label">예외</div>
+              <div className="stat-value small">{dashboard.statusCounts.EXCEPTION ?? 0}명</div>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { IconShield } from './icons';
 
 interface NavItem {
   to: string;
@@ -30,9 +31,14 @@ export function Layout({
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="topbar-title">
-          {title}
-          <small>{subtitle}</small>
+        <div className="brand">
+          <div className="brand-icon">
+            <IconShield />
+          </div>
+          <div className="topbar-title">
+            {title}
+            <small>{subtitle}</small>
+          </div>
         </div>
         <nav className="nav">
           {navItems.map((item) => (

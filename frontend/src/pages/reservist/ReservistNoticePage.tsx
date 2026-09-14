@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { confirmMobilization, fetchMyMobilization } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { MyMobilizationResponse } from '../../api/types';
+import { IconMail } from '../../components/icons';
 
 /** SCR-05/06: 본인 소집통지 및 입영 부대·훈련장 정보 조회 (FR-MOB-004). */
 export function ReservistNoticePage() {
@@ -31,7 +32,12 @@ export function ReservistNoticePage() {
 
   return (
     <div>
-      <h1>소집통지 확인</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconMail />
+        </div>
+        <h1>소집통지 확인</h1>
+      </div>
       <p className="page-subtitle">FR-MOB-004 본인 소집 일시·장소·부대 정보 조회</p>
 
       {error && <p className="error-text">{error}</p>}

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { fetchRules, updateRule } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { RuleResponse } from '../../api/types';
+import { IconSliders } from '../../components/icons';
 
 const RULE_TYPE_LABEL: Record<string, string> = {
   TIME: '시간 기준',
@@ -56,7 +57,12 @@ export function AdminRulePage() {
 
   return (
     <div>
-      <h1>규정 관리</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconSliders />
+        </div>
+        <h1>규정 관리</h1>
+      </div>
       <p className="page-subtitle">FR-RULE-002/003 판정 임계값·버전 관리 — 값 변경 시 코드 재배포 없이 즉시 반영되며 버전이 자동 증가합니다.</p>
 
       <div className="card">

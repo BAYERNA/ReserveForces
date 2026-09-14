@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchAuditLogs } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { AuditLogResponse } from '../../api/types';
+import { IconClipboard } from '../../components/icons';
 
 const ACTION_LABEL: Record<string, string> = {
   SCENARIO_RUN: '시나리오 실행',
@@ -27,7 +28,12 @@ export function AdminAuditLogPage() {
 
   return (
     <div>
-      <h1>처리 이력</h1>
+      <div className="page-header">
+        <div className="page-header-icon">
+          <IconClipboard />
+        </div>
+        <h1>처리 이력</h1>
+      </div>
       <p className="page-subtitle">FR-AUD-001 주요 상태 변경을 시각·처리자와 함께 기록·조회</p>
 
       <div className="card">
