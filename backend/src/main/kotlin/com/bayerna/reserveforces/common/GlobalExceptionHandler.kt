@@ -2,6 +2,7 @@ package com.bayerna.reserveforces.common
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -37,6 +38,12 @@ class GlobalExceptionHandler {
         val message = "${ex.name} 값의 형식이 올바르지 않습니다: ${ex.value}"
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiError(HttpStatus.BAD_REQUEST.value(), message))
     }
+
+    /** 요청 본문이 JSON으로 파싱되지 않는 경우(문법 오류 등) 500이 아닌 400으로 응답한다. */
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadableBody(ex: HttpMessageNotReadableException): ResponseEntity<ApiError> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiError(HttpStatus.BAD_REQUEST.value(), "요청 본문의 형식이 올바르지 않습니다."))
 
     /** 존재하지 않는 경로 요청은 500이 아닌 404로 응답한다. */
     @ExceptionHandler(NoResourceFoundException::class)

@@ -31,6 +31,9 @@ class AdminMasterDataController(
 
     @PostMapping("/mobilizations")
     fun createMobilization(@Valid @RequestBody request: CreateMobilizationRequest): MobilizationResponse {
+        if (request.scheduledEndAt != null && !request.scheduledEndAt.isAfter(request.scheduledStartAt)) {
+            throw ApiException.badRequest("종료 일시는 시작 일시보다 이후여야 합니다.")
+        }
         val unit = unitRepository.findById(request.unitId!!)
             .orElseThrow { ApiException.notFound("소집부대를 찾을 수 없습니다: ${request.unitId}") }
         val location = locationRepository.findById(request.locationId!!)
