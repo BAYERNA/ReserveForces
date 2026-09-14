@@ -6,6 +6,7 @@ import com.bayerna.reserveforces.domain.mobilization.MobilizationStatus
 import com.bayerna.reserveforces.domain.unit.MilitaryUnit
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -51,7 +52,9 @@ data class MobilizationResponse(
 data class CreateMobilizationRequest(
     @field:NotNull(message = "소집부대를 선택해 주세요.") val unitId: UUID?,
     @field:NotNull(message = "소집 장소를 선택해 주세요.") val locationId: UUID?,
-    @field:NotBlank(message = "소집 회차명을 입력해 주세요.") val name: String,
+    @field:NotBlank(message = "소집 회차명을 입력해 주세요.")
+    @field:Size(max = 100, message = "소집 회차명은 100자 이내로 입력해 주세요.")
+    val name: String,
     @field:NotNull(message = "소집 예정 일시를 입력해 주세요.") val scheduledStartAt: OffsetDateTime?,
     val scheduledEndAt: OffsetDateTime? = null,
 )

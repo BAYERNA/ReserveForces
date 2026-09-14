@@ -28,6 +28,10 @@ class RuleAdminService(
 
     @Transactional
     fun updateRule(ruleId: UUID, newValue: Double?, enabled: Boolean?, actor: UserAccount?): Rule {
+        if (newValue != null && newValue < 0) {
+            throw ApiException.badRequest("규칙 기준값은 0 이상이어야 합니다.")
+        }
+
         val rule = ruleRepository.findById(ruleId)
             .orElseThrow { ApiException.notFound("규칙을 찾을 수 없습니다: $ruleId") }
 
