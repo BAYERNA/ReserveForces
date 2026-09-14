@@ -69,6 +69,13 @@ export interface MobilizationResponse {
   status: string;
 }
 
+export interface LocationResponse {
+  locationId: string;
+  name: string;
+  address: string | null;
+  locationType: string;
+}
+
 export interface UnitResponse {
   unitId: string;
   code: string;

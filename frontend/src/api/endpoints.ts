@@ -2,6 +2,7 @@ import { api } from './client';
 import type {
   AuditLogResponse,
   DashboardResponse,
+  LocationResponse,
   LoginResponse,
   MobilizationResponse,
   MyMobilizationResponse,
@@ -30,6 +31,20 @@ export function fetchMobilizations() {
 
 export function fetchUnits() {
   return api.get<UnitResponse[]>('/admin/units');
+}
+
+export function fetchLocations() {
+  return api.get<LocationResponse[]>('/admin/locations');
+}
+
+export function createMobilization(params: {
+  unitId: string;
+  locationId: string;
+  name: string;
+  scheduledStartAt: string;
+  scheduledEndAt?: string;
+}) {
+  return api.post<MobilizationResponse>('/admin/mobilizations', params);
 }
 
 export function fetchTargets(params: { mobilizationId?: string; status?: TargetStatus; query?: string } = {}) {

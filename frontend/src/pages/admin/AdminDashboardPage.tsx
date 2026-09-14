@@ -1,7 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
-import { fetchDashboard, fetchMobilizations, fetchTargets, recordAttendance, markAbsent, completeTarget } from '../../api/endpoints';
+import {
+  fetchDashboard,
+  fetchMobilizations,
+  fetchTargets,
+  recordAttendance,
+  markAbsent,
+  completeTarget,
+  fetchUnits,
+  fetchLocations,
+  createMobilization,
+} from '../../api/endpoints';
 import { ApiError } from '../../api/client';
-import type { DashboardResponse, MobilizationResponse, TargetResponse, TargetStatus } from '../../api/types';
+import type { DashboardResponse, LocationResponse, MobilizationResponse, TargetResponse, TargetStatus, UnitResponse } from '../../api/types';
 import { AttendanceStatusBadge, TargetStatusBadge } from '../../components/badges';
 import { IconTrendingUp, IconUsers } from '../../components/icons';
 import { Gauge } from '../../components/Gauge';
@@ -33,6 +43,7 @@ export function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingTarget, setEditingTarget] = useState<TargetResponse | null>(null);
+  const [creatingMobilization, setCreatingMobilization] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,9 +62,13 @@ export function AdminDashboardPage() {
     }
   }, [mobilizationId, status, query]);
 
-  useEffect(() => {
+  const loadMobilizations = useCallback(() => {
     fetchMobilizations().then(setMobilizations).catch(() => setMobilizations([]));
   }, []);
+
+  useEffect(() => {
+    loadMobilizations();
+  }, [loadMobilizations]);
 
   useEffect(() => {
     load();
@@ -147,7 +162,12 @@ export function AdminDashboardPage() {
       )}
 
       <div className="card">
-        <h2>소집대상자 명단</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9rem' }}>
+          <h2 style={{ margin: 0 }}>소집대상자 명단</h2>
+          <button className="btn btn-sm" onClick={() => setCreatingMobilization(true)}>
+            + 새 소집 회차 등록
+          </button>
+        </div>
         <div className="filter-bar">
           <input
             type="text"
@@ -177,7 +197,9 @@ export function AdminDashboardPage() {
         {loading ? (
           <p className="empty-state">불러오는 중...</p>
         ) : targets.length === 0 ? (
-          <p className="empty-state">조건에 맞는 소집대상자가 없습니다. 시나리오를 먼저 실행해 주세요.</p>
+          <p className="empty-state">
+            조건에 맞는 소집대상자가 없습니다. 검색·필터 조건을 확인하시거나, 시연 제어에서 시나리오를 실행해 대상자를 생성해 주세요.
+          </p>
         ) : (
           <div className="table-scroll">
             <table>
@@ -240,6 +262,117 @@ export function AdminDashboardPage() {
           }}
         />
       )}
+
+      {creatingMobilization && (
+        <CreateMobilizationModal
+          onClose={() => setCreatingMobilization(false)}
+          onCreated={(mobilization) => {
+            setCreatingMobilization(false);
+            loadMobilizations();
+            setMobilizationId(mobilization.mobilizationId);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function CreateMobilizationModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: (mobilization: MobilizationResponse) => void;
+}) {
+  const [units, setUnits] = useState<UnitResponse[]>([]);
+  const [locations, setLocations] = useState<LocationResponse[]>([]);
+  const [unitId, setUnitId] = useState('');
+  const [locationId, setLocationId] = useState('');
+  const [name, setName] = useState('');
+  const [scheduledStartAt, setScheduledStartAt] = useState('');
+  const [scheduledEndAt, setScheduledEndAt] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUnits().then(setUnits).catch(() => setUnits([]));
+    fetchLocations().then(setLocations).catch(() => setLocations([]));
+  }, []);
+
+  const submit = async () => {
+    if (!unitId || !locationId || !name.trim() || !scheduledStartAt) {
+      setError('부대, 장소, 회차명, 예정 일시를 모두 입력해 주세요.');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const mobilization = await createMobilization({
+        unitId,
+        locationId,
+        name: name.trim(),
+        scheduledStartAt: `${scheduledStartAt}:00Z`,
+        scheduledEndAt: scheduledEndAt ? `${scheduledEndAt}:00Z` : undefined,
+      });
+      onCreated(mobilization);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '소집 회차 등록 중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h3>새 소집 회차 등록</h3>
+        <p className="page-subtitle" style={{ marginBottom: '0.8rem' }}>
+          FR-MOB-001 소집부대·장소·일정을 등록하면 대상자를 배정할 새 소집 회차가 생성됩니다.
+        </p>
+        <div className="field">
+          <label htmlFor="mob-unit">소집부대</label>
+          <select id="mob-unit" value={unitId} onChange={(e) => setUnitId(e.target.value)}>
+            <option value="">선택해 주세요</option>
+            {units.map((u) => (
+              <option key={u.unitId} value={u.unitId}>
+                {u.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="mob-location">소집 장소</label>
+          <select id="mob-location" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
+            <option value="">선택해 주세요</option>
+            {locations.map((l) => (
+              <option key={l.locationId} value={l.locationId}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="mob-name">소집 회차명</label>
+          <input id="mob-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 2026년 1차 정기 소집훈련" />
+        </div>
+        <div className="field">
+          <label htmlFor="mob-start">소집 예정 일시 (UTC)</label>
+          <input id="mob-start" type="datetime-local" value={scheduledStartAt} onChange={(e) => setScheduledStartAt(e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="mob-end">소집 종료 일시 (선택, UTC)</label>
+          <input id="mob-end" type="datetime-local" value={scheduledEndAt} onChange={(e) => setScheduledEndAt(e.target.value)} />
+        </div>
+        {error && <p className="error-text">{error}</p>}
+        <div className="modal-actions">
+          <button className="btn-ghost" style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }} onClick={onClose}>
+            취소
+          </button>
+          <button className="btn" onClick={submit} disabled={saving}>
+            {saving ? '등록 중...' : '등록'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
