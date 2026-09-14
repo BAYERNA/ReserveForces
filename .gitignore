@@ -1,0 +1,19 @@
+# Backend (Gradle / Kotlin)
+backend/build/
+backend/.gradle/
+*.class
+*.log
+
+# Frontend (Node / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
