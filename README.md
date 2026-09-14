@@ -99,6 +99,16 @@ cd backend
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
 - 최초 구동 시 Flyway가 스키마를 생성하고, `DataSeeder`가 마스터 데이터와 초기 시나리오를 자동 적재합니다.
 
+> **맥에서 `java -version`이 21이 아니라면** (예: Homebrew로 최신 버전만 깔려있는 경우) Gradle이 정상적으로
+> 뜨지 않을 수 있습니다. Java 21을 설치한 뒤 그 터미널 세션에서만 `JAVA_HOME`을 지정해서 실행하세요.
+>
+> ```bash
+> brew install --cask temurin@21
+> export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+> java -version   # openjdk version "21..." 확인
+> ./gradlew bootRun
+> ```
+
 ### 4. 프론트엔드 실행
 
 ```bash
