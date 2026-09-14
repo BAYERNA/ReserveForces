@@ -5,6 +5,7 @@ import {
   fetchTargets,
   fetchTarget,
   fetchEvaluationsForTarget,
+  fetchAuditLogs,
   recordAttendance,
   markAbsent,
   completeTarget,
@@ -14,6 +15,7 @@ import {
 } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type {
+  AuditLogResponse,
   DashboardResponse,
   LocationResponse,
   MobilizationResponse,
@@ -22,7 +24,7 @@ import type {
   TargetStatus,
   UnitResponse,
 } from '../../api/types';
-import { AttendanceStatusBadge, ResultCodeBadge, TargetStatusBadge } from '../../components/badges';
+import { AttendanceStatusBadge, ResultCodeBadge, TargetStatusBadge, auditActionLabel } from '../../components/badges';
 import { IconTrendingUp, IconUsers } from '../../components/icons';
 import { Gauge } from '../../components/Gauge';
 import { StatusBarChart } from '../../components/StatusBarChart';
@@ -55,17 +57,20 @@ export function AdminDashboardPage() {
   const [editingTarget, setEditingTarget] = useState<TargetResponse | null>(null);
   const [creatingMobilization, setCreatingMobilization] = useState(false);
   const [viewingTargetId, setViewingTargetId] = useState<string | null>(null);
+  const [recentEvents, setRecentEvents] = useState<AuditLogResponse[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [dashboardData, targetData] = await Promise.all([
+      const [dashboardData, targetData, auditLogs] = await Promise.all([
         fetchDashboard(mobilizationId || undefined),
         fetchTargets({ mobilizationId: mobilizationId || undefined, status: status || undefined, query: query || undefined }),
+        fetchAuditLogs().catch(() => []),
       ]);
       setDashboard(dashboardData);
       setTargets(targetData);
+      setRecentEvents(auditLogs.slice(0, 5));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '현황 정보를 불러오지 못했습니다.');
     } finally {
@@ -165,9 +170,30 @@ export function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="card">
-            <h2>상태별 현황</h2>
-            <StatusBarChart statusCounts={dashboard.statusCounts} total={dashboard.totalTargets} />
+          <div className="dashboard-row">
+            <div className="card">
+              <h2>상태별 현황</h2>
+              <StatusBarChart statusCounts={dashboard.statusCounts} total={dashboard.totalTargets} />
+            </div>
+
+            <div className="card">
+              <h2>최근 이벤트</h2>
+              {recentEvents.length === 0 ? (
+                <p className="empty-state">아직 처리 이력이 없습니다.</p>
+              ) : (
+                <div className="event-list">
+                  {recentEvents.map((ev) => (
+                    <div className="event-row" key={ev.logId}>
+                      <div className="event-row-main">
+                        <span className="event-action">{auditActionLabel(ev.action)}</span>
+                        <span className="event-actor">{ev.actor ?? '시스템'}</span>
+                      </div>
+                      <div className="event-time">{ev.createdAt ? ev.createdAt.replace('T', ' ').slice(0, 19) : '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}

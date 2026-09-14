@@ -3,15 +3,7 @@ import { fetchAuditLogs } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import type { AuditLogResponse } from '../../api/types';
 import { IconClipboard } from '../../components/icons';
-
-const ACTION_LABEL: Record<string, string> = {
-  SCENARIO_RUN: '시나리오 실행',
-  ATTENDANCE_RECORDED: '입영 기록',
-  TARGET_MARKED_ABSENT: '미입영 처리',
-  TARGET_MARKED_EXCEPTION: '예외 처리',
-  TARGET_COMPLETED: '처리 완료',
-  DEMO_RESET: '시연 초기화',
-};
+import { auditActionLabel } from '../../components/badges';
 
 /** FR-AUD-001: 상태 변경 이력을 시간순으로 기록·조회한다. */
 export function AdminAuditLogPage() {
@@ -59,7 +51,7 @@ export function AdminAuditLogPage() {
                 {logs.map((log) => (
                   <tr key={log.logId}>
                     <td>{log.actor ?? '-'}</td>
-                    <td>{ACTION_LABEL[log.action] ?? log.action}</td>
+                    <td>{auditActionLabel(log.action)}</td>
                     <td>{log.targetType}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{log.beforeData ?? '-'}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{log.afterData ?? '-'}</td>

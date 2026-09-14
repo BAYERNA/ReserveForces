@@ -52,3 +52,15 @@ export function ResultCodeBadge({ code }: { code: string }) {
 
 export const targetStatusLabel = (status: TargetStatus) => TARGET_STATUS_LABEL[status];
 export const resultCodeLabel = (code: string) => RESULT_CODE_LABEL[code] ?? code;
+
+export const AUDIT_ACTION_LABEL: Record<string, string> = {
+  SCENARIO_RUN: '시나리오 실행',
+  ATTENDANCE_RECORDED: '입영 기록',
+  TARGET_MARKED_ABSENT: '미입영 처리',
+  TARGET_MARKED_EXCEPTION: '예외 처리',
+  TARGET_COMPLETED: '처리 완료',
+  DEMO_RESET: '시연 초기화',
+  RULE_UPDATED: '규정 변경',
+};
+
+export const auditActionLabel = (action: string) => AUDIT_ACTION_LABEL[action] ?? action;
