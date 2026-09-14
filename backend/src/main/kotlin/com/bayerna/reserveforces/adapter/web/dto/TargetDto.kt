@@ -4,6 +4,8 @@ import com.bayerna.reserveforces.domain.attendance.Attendance
 import com.bayerna.reserveforces.domain.attendance.AttendanceStatus
 import com.bayerna.reserveforces.domain.target.MobilizationTarget
 import com.bayerna.reserveforces.domain.target.TargetStatus
+import jakarta.validation.constraints.DecimalMin
+import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
 import java.math.BigDecimal
 import java.time.OffsetDateTime
@@ -47,6 +49,8 @@ data class TargetResponse(
 
 data class RecordAttendanceRequest(
     val arrivedAt: OffsetDateTime?,
+    @field:DecimalMin(value = "0.0", message = "거주지 거리는 0km 이상이어야 합니다.")
+    @field:Digits(integer = 6, fraction = 2, message = "거주지 거리 값이 올바르지 않습니다.")
     val distanceKm: BigDecimal?,
 )
 

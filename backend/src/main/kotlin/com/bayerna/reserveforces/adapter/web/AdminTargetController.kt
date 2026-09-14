@@ -48,7 +48,7 @@ class AdminTargetController(
     @PostMapping("/attendance/{id}")
     fun recordAttendance(
         @PathVariable id: UUID,
-        @RequestBody request: RecordAttendanceRequest,
+        @Valid @RequestBody request: RecordAttendanceRequest,
         @AuthenticationPrincipal principal: AuthenticatedUser,
     ): TargetResponse {
         val attendance = attendanceService.recordAttendance(id, request.arrivedAt, request.distanceKm, resolveActor(principal))
